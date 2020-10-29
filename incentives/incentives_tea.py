@@ -2,7 +2,10 @@
 """
 Created on Sun Oct  4 12:18:15 2020
 
-@author: yrc2
+@author: dalton w stewart
+modified version of debug.py by yrc2
+
+This file includes the tax incentives from incentives.py into a TEA. It does not include net metering programs.
 """
 import os
 import pandas as pd
@@ -10,10 +13,6 @@ import numpy as np
 from biorefineries import lipidcane as lc
 from incentives import TaxIncentives
 import biosteam as bst
-
-folder = os.path.dirname(__file__)
-xlfile = os.path.join(folder, 'State_Parameters.xlsx')
-nm_data = pd.read_excel(xlfile, index_col=[0])
 
 
     
@@ -73,14 +72,9 @@ class IncentivesTEA(lc.ConventionalEthanolTEA):
              elec_gen=sum([i.power_utility.production for i in self.units]),
              op_hours=operating_hours,
              start=self._start)
-        # tax_incentives.load_net_metering_parameters()
-        # net_metering = tax_incentives.calc_net_metering(df=False)
         credits_ = tax_incentives.calc_all_tax_incentives(df=False, include_federal=self.with_federal_incentives)    
         credits_[credits_ > tax] = tax
-        # net_metering = map(lambda x: x[0], net_metering)
-        # net_metering = pd.Series(net_metering)
-        # incentives_ = sum(credits_)#,net_metering)
-        incentives[:] = credits_#incentives_
+        incentives[:] = credits_
         
 tea = lc.create_tea(lc.lipidcane_sys, IncentivesTEA)
 
